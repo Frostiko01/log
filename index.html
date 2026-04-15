@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
+<title>Для тебя 💖</title>
+
+<style>
+:root {
+    --primary: #ff4d6d;
+    --bg-grad: radial-gradient(circle, #ffdde1, #ee9ca7);
+}
+
+*{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-grad);
+    height: 100dvh; /* Динамическая высота для мобильных */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Основной контейнер, который подстраивается под экран */
+.main-wrapper {
+    width: 95%;
+    max-width: 400px;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Контейнер для видео с фиксированным соотношением сторон */
+.video-container {
+    width: 100%;
+    position: relative;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+    background: #000;
+    /* Соотношение 9:16 как в Reels/TikTok */
+    aspect-ratio: 9 / 16;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Видео заполнит весь контейнер без черных полос */
+    display: block;
+}
+
+.overlay-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    color: white;
+    font-size: clamp(20px, 6vw, 28px);
+    font-weight: 800;
+    text-align: center;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.ui-block {
+    margin-top: 20px;
+    width: 100%;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+}
+
+.final-card {
+    display: none;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 20px;
+    width: 100%;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+button {
+    padding: 16px 30px;
+    border: none;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+button:active { transform: scale(0.95); }
+
+.btn-yes { background: var(--primary); color: white; width: 100%; margin-bottom: 10px; }
+.btn-no { background: #eee; color: #666; font-size: 14px; }
+
+/* Старт-экран */
+.starter {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-grad);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.heart-anim {
+    position: absolute;
+    pointer-events: none;
+    z-index: 1;
+    animation: flow 4s linear forwards;
+}
+
+@keyframes flow {
+    to { transform: translateY(-105vh) rotate(360deg); opacity: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="starter" id="starter">
+    <h1 style="color: white; margin-bottom: 30px;">Тебе пришло сообщение 💖</h1>
+    <button class="btn-yes" style="width: auto;" onclick="init()">Открыть</button>
+</div>
+
+<div class="main-wrapper">
+    <div class="video-container">
+        <video id="myVideo" playsinline webkit-playsinline muted loop preload="auto">
+            <source src="./video.mp4.mp4" type="video/mp4">
+        </video>
+        <div class="overlay-text" id="statusText"></div>
+    </div>
+
+    <div class="ui-block">
+        <div id="final" class="final-card">
+            <h2 style="margin: 0 0 15px 0; color: #333;">Ты чувствуешь это?</h2>
+            <button class="btn-yes" onclick="celebrate()">Да 💕</button>
+            <button class="btn-no" id="noBtn">Нет 😅</button>
+        </div>
+    </div>
+</div>
+
+<audio id="bgMusic" loop>
+    <source src="./muzik.mp4.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const video = document.getElementById('myVideo');
+const music = document.getElementById('bgMusic');
+const statusText = document.getElementById('statusText');
+const finalCard = document.getElementById('final');
+const noBtn = document.getElementById('noBtn');
+
+function init() {
+    document.getElementById('starter').style.display = 'none';
+    
+    // Гарантированный запуск видео и аудио после клика
+    video.load();
+    video.play();
+    music.play();
+
+    // Сценарий текста
+    const phrases = [
+        { t: "Привет...", d: 2000 },
+        { t: "Я давно хотел спросить...", d: 4500 },
+        { t: "", d: 7000 }
+    ];
+
+    phrases.forEach(p => {
+        setTimeout(() => {
+            statusText.innerText = p.t;
+            if(p.t === "") finalCard.style.display = 'block';
+        }, p.d);
+    });
+}
+
+function celebrate() {
+    finalCard.innerHTML = "<h2 style='color: var(--primary)'>Я так и знал! 💖</h2>";
+    setInterval(createHeart, 300);
+}
+
+// Убегающая кнопка "Нет"
+function escape() {
+    const x = Math.random() * (window.innerWidth - 100);
+    const y = Math.random() * (window.innerHeight - 50);
+    noBtn.style.position = 'fixed';
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+    noBtn.style.zIndex = '1000';
+}
+
+noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); escape(); });
+noBtn.addEventListener('mouseover', escape);
+
+function createHeart() {
+    const h = document.createElement('div');
+    h.className = 'heart-anim';
+    h.innerHTML = '💖';
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.bottom = '-10vh';
+    h.style.fontSize = (Math.random() * 20 + 20) + 'px';
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 4000);
+}
+</script>
+
+</body>
+</html>
